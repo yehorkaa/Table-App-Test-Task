@@ -1,6 +1,6 @@
 import { useState, ChangeEvent, useRef } from "react";
-import { IMappedUserTable, IUserTable } from "../interfaces/table";
-import { tableMapper } from "../utils/mappers/AppMappers";
+import { IMappedUserTable, IUserTable, MappedTableKeys } from "../interfaces/table";
+import { tableMapper } from "../utils/mappers/Table/TableMappers";
 
 export const useFile = () => {
   const [csvData, setCsvData] = useState<IMappedUserTable[]>([]);
@@ -36,7 +36,7 @@ export const useFile = () => {
         parsedData.push(row);
       }
     }
-    console.log(parsedData)
+    console.log(parsedData);
     setCsvData(tableMapper(parsedData));
   };
 
@@ -65,5 +65,12 @@ export const useFile = () => {
     fileInput.current?.click();
   };
 
-  return { csvData, handleFileChange, error, ref, handleClick };
+  return {
+    csvData,
+    handleFileChange,
+    error,
+    ref,
+    handleClick,
+    headers: csvData.length ? (Object.keys(csvData[0]) as MappedTableKeys[]) : [],
+  };
 };

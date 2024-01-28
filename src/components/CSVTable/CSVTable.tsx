@@ -1,52 +1,20 @@
 import { FC } from "react";
-import { IMappedUserTable } from "../../interfaces/table";
-import { validField } from "../../utils/validation_schemas/table_schemas";
+import { ICSVTable } from "../../interfaces/table";
 import styles from "./CSVTable.module.scss";
-import cn from "classnames";
-import { formatHeader } from "../../utils/mappers/AppMappers";
+import CSVTableHeaders from "./CSVTableHeaders";
+import CSVTableBody from "./CSVTableBody";
+import CSVFallback from "./CSVFallback";
+import { isShowTable } from "../../utils/mappers/Table/TableFormatters";
 
-const CSVTable: FC<{
-  data: IMappedUserTable[];
-  error: Record<"message", string>;
-}> = ({ data, error }) => {
-  const headers = data.length
-    ? (Object.keys(data[0]) as Array<keyof IMappedUserTable>)
-    : [];
+const CSVTable: FC<ICSVTable> = ({ data, error, headers }) => {
   return (
     <>
-      {data.length === 0 || error.message.length ? (
-        <p>{error.message || "No content so far..."}</p>
+      {isShowTable({ data, error: error.message }) ? (
+        <CSVFallback message={error.message} />
       ) : (
         <table className={styles.tableStyle}>
-          <thead>
-            <tr>
-              {headers.map((header) => (
-                <th key={Math.random()} className={styles.tableHeaderStyle}>
-                  {formatHeader(header)}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, index) => {
-              return (
-                <tr key={index}>
-                  {headers.map((header) => (
-                    <td
-                      key={Math.random()}
-                      className={cn(
-                        validField({ type: header, value: row[header], row })
-                          ? styles.tableCellStyle
-                          : styles.tableErrorCellStyle
-                      )}
-                    >
-                      {row[header]}
-                    </td>
-                  ))}
-                </tr>
-              );
-            })}
-          </tbody>
+          <CSVTableHeaders headers={headers} />
+          <CSVTableBody data={data} headers={headers} />
         </table>
       )}
     </>
